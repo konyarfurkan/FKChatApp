@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "458356265322",
+    "firebase_url": "https://konyar-ed8af.firebaseio.com",
+    "project_id": "konyar-ed8af",
+    "storage_bucket": "konyar-ed8af.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:458356265322:android:7a5d5a9c32cf19e0",
+        "android_client_info": {
+          "package_name": "com.furkan.fk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "458356265322-v2ub4ms4342l4e1v6bdtjvrmipivq3l7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.furkan.fk",
+            "certificate_hash": "8075f961f8b84b3503e219dca6ac53f918ec7de3"
+          }
+        },
+        {
+          "client_id": "458356265322-v4bv5hipg3e831uvmnf3ck55i49c1rqo.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "458356265322-v4bv5hipg3e831uvmnf3ck55i49c1rqo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCin21kaMaa0Oyoo0zcQ5fuyisJtggVjtg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "458356265322-v4bv5hipg3e831uvmnf3ck55i49c1rqo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

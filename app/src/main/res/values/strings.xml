@@ -1,0 +1,34 @@
+<resources>
+    <string name="facebook_app_id">196615720978651</string>
+    <string name="fb_login_protocol_scheme">fb196615720978651</string>
+    <string name="app_name">FK</string>
+    <string name="need_a_new_account">need a new account ?</string>
+    <string name="display_name">Display Name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="log_out">Log Out</string>
+    <string name="account_settings">Account Settings</string>
+    <string name="all_users">All Users</string>
+    <string name="create_a_new_account">Create a New Account</string>
+    <string name="login_to_your_account">Login to Your Account</string>
+    <string name="login">LOGIN</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="chats">chats</string>
+    <string name="friends">friends</string>
+    <string name="requests">requests</string>
+    <string name="display_name2">Display Name</string>
+    <string name="status">Status</string>
+    <string name="change_image">Change Image</string>
+    <string name="change_status">Change Status</string>
+    <string name="total_friends">Total Friends</string>
+    <string name="current_user_status">Current User Status</string>
+    <string name="send_friend_request">Send Friend Request</string>
+    <string name="decline_friend_request">DECLINE FRIEND REQUEST</string>
+    <string name="SEND_FRIEND_REQUEST">SEND FRIEND REQUEST</string>
+    <string name="display_namePA">Display Name</string>
+    <string name="welcome_to_fk">Welcome to FK</string>
+    <string name="already_have_an_account">Already Have An Account</string>
+</resources>
