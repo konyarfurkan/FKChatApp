@@ -12,11 +12,13 @@ import android.view.MenuItem;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth firebaseAuth;
-
+    private DatabaseReference userDatabaseReference;
 
     private Toolbar toolbar;
     private ViewPager viewPager;
@@ -33,7 +35,12 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("FK");
 
         firebaseAuth=FirebaseAuth.getInstance();
+        if(firebaseAuth.getCurrentUser()!=null) {
 
+            userDatabaseReference = FirebaseDatabase.getInstance()
+                    .getReference().child("Users").child(firebaseAuth.getCurrentUser().getUid());
+
+        }
         viewPager=findViewById(R.id.main_tabPager);
         sectionsPagerAdapter=new SectionsPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(sectionsPagerAdapter);
@@ -51,6 +58,23 @@ public class MainActivity extends AppCompatActivity {
         if(currentUser==null){
 
             sendToStartActivity();
+
+        }
+        else {
+
+            userDatabaseReference.child("online").setValue(true);
+
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+
+        if(currentUser!=null) {
+
+            userDatabaseReference.child("online").setValue(false);
 
         }
     }

@@ -335,4 +335,23 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(false);
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(true);
+
+
+    }
+
 }

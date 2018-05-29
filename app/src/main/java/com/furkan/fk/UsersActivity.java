@@ -10,8 +10,11 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -22,6 +25,7 @@ public class UsersActivity extends AppCompatActivity {
     private RecyclerView recyclerView_usersList;
 
     private DatabaseReference databaseReference;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +44,6 @@ public class UsersActivity extends AppCompatActivity {
         recyclerView_usersList.setLayoutManager(new LinearLayoutManager(this));
 
         databaseReference= FirebaseDatabase.getInstance().getReference().child("Users");
-
 
     }
 
@@ -108,13 +111,35 @@ public class UsersActivity extends AppCompatActivity {
 
         }
 
-        public void setImage(String thumb_image){
+        public void setImage(final String thumb_image){
 
             CircleImageView userImageView=mView.findViewById(R.id.user_single_image);
 
             Picasso.get().load(thumb_image).placeholder(R.mipmap.default_avatar).into(userImageView);
 
+
         }
 
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        FirebaseDatabase.getInstance().getReference().child("Users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("online").setValue(false);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        FirebaseDatabase.getInstance().getReference().child("Users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("online").setValue(true);
+
+
+    }
+
+
 }

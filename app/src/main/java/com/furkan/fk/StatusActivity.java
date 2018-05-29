@@ -24,7 +24,7 @@ public class StatusActivity extends AppCompatActivity {
     private TextInputLayout status;
     private ProgressDialog progressDialog;
 
-    private DatabaseReference databaseReference;
+    private DatabaseReference usersDatabaseReference;
     private FirebaseUser current_user;
 
     @Override
@@ -40,7 +40,7 @@ public class StatusActivity extends AppCompatActivity {
 
         current_user= FirebaseAuth.getInstance().getCurrentUser();
         String current_user_uid=current_user.getUid();
-        databaseReference= FirebaseDatabase.getInstance().getReference().child("Users").child(current_user_uid);
+        usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(current_user_uid);
 
         status=findViewById(R.id.status_input);
         status.getEditText().setText(current_status);
@@ -56,7 +56,7 @@ public class StatusActivity extends AppCompatActivity {
                 progressDialog.show();
 
                 String update_status=status.getEditText().getText().toString();
-                databaseReference.child("status").setValue(update_status).addOnCompleteListener(new OnCompleteListener<Void>() {
+                usersDatabaseReference.child("status").setValue(update_status).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
@@ -78,4 +78,23 @@ public class StatusActivity extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(false);
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(true);
+
+
+    }
+
 }

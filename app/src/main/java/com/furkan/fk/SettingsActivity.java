@@ -13,8 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,7 +28,6 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -43,7 +40,7 @@ import id.zelory.compressor.Compressor;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private DatabaseReference databaseReference;
+    private DatabaseReference usersDatabaseReference;
     private FirebaseUser current_user;
 
     private CircleImageView settingsImage;
@@ -74,11 +71,11 @@ public class SettingsActivity extends AppCompatActivity {
         current_user = FirebaseAuth.getInstance().getCurrentUser();
         String current_uid = current_user.getUid();
 
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid);
-        databaseReference.keepSynced(true);
+        usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid);
+        usersDatabaseReference.keepSynced(true);
 
 
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        usersDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -227,7 +224,7 @@ public class SettingsActivity extends AppCompatActivity {
                                         update_HashMap.put("image", download_url);
                                         update_HashMap.put("thumb_image", thumb_downloadUrl);
 
-                                        databaseReference.updateChildren(update_HashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        usersDatabaseReference.updateChildren(update_HashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
 
@@ -252,7 +249,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 }
                             });
 
-                            databaseReference.child("image").setValue(download_url).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            usersDatabaseReference.child("image").setValue(download_url).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
 
@@ -284,5 +281,24 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
 
+
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(false);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(true);
+
+
+    }
+
 }
