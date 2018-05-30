@@ -1,6 +1,7 @@
 package com.furkan.fk;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +11,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.Calendar;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -24,55 +32,51 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private List<Messages> messagesList;
 
     private FirebaseAuth firebaseAuth;
+    protected Context getApplicationContext;
 
-    public MessageAdapter(List<Messages> messagesList){
+    public MessageAdapter(List<Messages> messagesList) {
 
-        this.messagesList=messagesList;
+        this.messagesList = messagesList;
 
     }
 
-
-
     @Override
-    public MessageViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
+    public MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view= LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.message_single_layout,parent,false);
+
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.message_single_layout, parent, false);
 
         return new MessageViewHolder(view);
 
-
     }
 
-    public class MessageViewHolder extends RecyclerView.ViewHolder{
+    public class MessageViewHolder extends RecyclerView.ViewHolder {
 
         public TextView messageText;
-        public CircleImageView profileImage;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
 
-            messageText=itemView.findViewById(R.id.message_text_layout);
-            profileImage=itemView.findViewById(R.id.message_profile_layout);
+            messageText = itemView.findViewById(R.id.message_text_layout);
 
         }
     }
 
-    public void onBindViewHolder(MessageViewHolder holder, int position) {
+    public void onBindViewHolder(final MessageViewHolder holder, int position) {
 
-        firebaseAuth=FirebaseAuth.getInstance();
-        String current_user_id=firebaseAuth.getCurrentUser().getUid();
+        firebaseAuth = FirebaseAuth.getInstance();
+        String current_user_id = firebaseAuth.getCurrentUser().getUid();
 
-        Messages c=messagesList.get(position);
-        String from_user=c.getFrom();
+        Messages c = messagesList.get(position);
+        String from_user = c.getFrom();
 
-        if(from_user.equals(current_user_id)){
+        if (from_user.equals(current_user_id)) {
 
             holder.messageText.setBackgroundColor(Color.WHITE);
             holder.messageText.setTextColor(Color.BLACK);
 
-        }
-        else{
+        } else {
 
             holder.messageText.setBackgroundResource(R.drawable.messages_text_background);
             holder.messageText.setTextColor(Color.WHITE);
@@ -80,8 +84,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
 
         holder.messageText.setText(c.getMessage());
-
-
 
     }
 
@@ -92,3 +94,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
 
 }
+/*if(from_user.equals(current_user_id)){
+
+        holder.messageText.setBackgroundColor(Color.WHITE);
+        holder.messageText.setTextColor(Color.BLACK);
+        holder.messageDisplayName
+        .setText(FirebaseDatabase.getInstance().getReference().child("Users").child(current_user_id).child("display_name").toString());
+
+        }
+
+        else{
+
+        holder.messageText.setBackgroundResource(R.drawable.messages_text_background);
+        holder.messageText.setTextColor(Color.WHITE);
+        holder.messageDisplayName.setVisibility(View.INVISIBLE);
+
+        }*/

@@ -1,6 +1,7 @@
 package com.furkan.fk;
 
 import android.content.Context;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
@@ -41,60 +43,69 @@ public class ChatActivity extends AppCompatActivity {
 
     private DatabaseReference rootDatabaseReference;
 
-    private TextView chat_displayName,chat_lastSeen;
+    private TextView chat_displayName, chat_lastSeen;
     private CircleImageView chat_profileImage;
 
     private FirebaseAuth firebaseAuth;
     private String current_user_id;
 
-    private ImageButton chat_AddButton,chat_SendButton;
+    private ImageButton chat_AddButton, chat_SendButton;
     private EditText chatMessage;
 
     private RecyclerView mMessagesList;
+    private SwipeRefreshLayout refreshLayout;
 
-    private final List<Messages> messagesList=new ArrayList<>();
+    private final List<Messages> messagesList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
 
     private MessageAdapter messageAdapter;
+
+    private static final int TOTAL_ITEMS_TO_LOAD = 10;
+    private int currentPage = 1;
+
+    private int itemPos = 0;
+    private String lastMessageKey = "";
+    private String previousMessageKey="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        toolbar=findViewById(R.id.chat_app_bar);
+        toolbar = findViewById(R.id.chat_app_bar);
 
         setSupportActionBar(toolbar);
-        ActionBar actionBar=getSupportActionBar();
+        ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        rootDatabaseReference= FirebaseDatabase.getInstance().getReference();
-        firebaseAuth=FirebaseAuth.getInstance();
-        current_user_id=firebaseAuth.getCurrentUser().getUid();
+        rootDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        firebaseAuth = FirebaseAuth.getInstance();
+        current_user_id = firebaseAuth.getCurrentUser().getUid();
 
-        chatUser=getIntent().getStringExtra("user_id");
-        chatUser_displayName=getIntent().getStringExtra("user_displayName");
+        chatUser = getIntent().getStringExtra("user_id");
+        chatUser_displayName = getIntent().getStringExtra("user_displayName");
 
 
         getSupportActionBar().setTitle(chatUser_displayName);
-        LayoutInflater layoutInflater=(LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View action_bar_view=layoutInflater.inflate(R.layout.chat_custom_bar,null);
+        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View action_bar_view = layoutInflater.inflate(R.layout.chat_custom_bar, null);
 
         actionBar.setCustomView(action_bar_view);
 
-        chat_displayName=findViewById(R.id.custom_bar_displayName);
-        chat_lastSeen=findViewById(R.id.custom_bar_lastSeen);
-        chat_profileImage=findViewById(R.id.custom_bar_image);
+        chat_displayName = findViewById(R.id.custom_bar_displayName);
+        chat_lastSeen = findViewById(R.id.custom_bar_lastSeen);
+        chat_profileImage = findViewById(R.id.custom_bar_image);
 
-        chat_AddButton=findViewById(R.id.chat_addMessage_button);
-        chat_SendButton=findViewById(R.id.chat_sendMessage_button);
-        chatMessage=findViewById(R.id.chat_Message);
+        chat_AddButton = findViewById(R.id.chat_addMessage_button);
+        chat_SendButton = findViewById(R.id.chat_sendMessage_button);
+        chatMessage = findViewById(R.id.chat_Message);
 
-        messageAdapter=new MessageAdapter(messagesList);
-        mMessagesList=findViewById(R.id.chat_messagesList);
+        messageAdapter = new MessageAdapter(messagesList);
+        mMessagesList = findViewById(R.id.chat_messagesList);
+        refreshLayout = findViewById(R.id.message_swipe_layout);
 
-        linearLayoutManager=new LinearLayoutManager(this);
+        linearLayoutManager = new LinearLayoutManager(this);
         mMessagesList.setHasFixedSize(true);
         mMessagesList.setLayoutManager(linearLayoutManager);
         mMessagesList.setAdapter(messageAdapter);
@@ -107,22 +118,21 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                String online=dataSnapshot.child("online").getValue().toString();
-                String thumbImage=dataSnapshot.child("thumb_image").getValue().toString();
+                String online = dataSnapshot.child("online").getValue().toString();
+                String thumbImage = dataSnapshot.child("thumb_image").getValue().toString();
 
                 Picasso.get().load(thumbImage).placeholder(R.mipmap.default_avatar).into(chat_profileImage);
 
 
-                if (online.equals("true")){
+                if (online.equals("true")) {
 
                     chat_lastSeen.setText("Online");
 
-                }
-                else{
+                } else {
 
-                    GetTimeAgo getTimeAgo=new GetTimeAgo();
-                    long lastTime=Long.parseLong(online);
-                    String lastSeenTime=getTimeAgo.getTimeAgo(lastTime,getApplicationContext());
+                    GetTimeAgo getTimeAgo = new GetTimeAgo();
+                    long lastTime = Long.parseLong(online);
+                    String lastSeenTime = getTimeAgo.getTimeAgo(lastTime, getApplicationContext());
 
                     chat_lastSeen.setText(lastSeenTime);
 
@@ -140,23 +150,23 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                if(!dataSnapshot.hasChild(chatUser)){
+                if (!dataSnapshot.hasChild(chatUser)) {
 
-                    Map chatAddMap=new HashMap();
-                    chatAddMap.put("seen",false);
-                    chatAddMap.put("timestamp",ServerValue.TIMESTAMP);
+                    Map chatAddMap = new HashMap();
+                    chatAddMap.put("seen", false);
+                    chatAddMap.put("timestamp", ServerValue.TIMESTAMP);
 
-                    Map chatUserMap=new HashMap();
-                    chatUserMap.put("Chat/"+current_user_id+"/"+chatUser,chatAddMap);
-                    chatUserMap.put("Chat/"+chatUser+"/"+current_user_id,chatAddMap);
+                    Map chatUserMap = new HashMap();
+                    chatUserMap.put("Chat/" + current_user_id + "/" + chatUser, chatAddMap);
+                    chatUserMap.put("Chat/" + chatUser + "/" + current_user_id, chatAddMap);
 
                     rootDatabaseReference.updateChildren(chatUserMap, new DatabaseReference.CompletionListener() {
                         @Override
                         public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
 
-                            if(databaseError!=null){
+                            if (databaseError != null) {
 
-                                Log.d("CHAT LOG",databaseError.getMessage().toString());
+                                Log.d("CHAT LOG", databaseError.getMessage().toString());
 
                             }
 
@@ -183,19 +193,112 @@ public class ChatActivity extends AppCompatActivity {
         });
 
 
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                currentPage++;
+
+                itemPos = 0;
+
+                loadMoreMessages();
+
+            }
+        });
+
+    }
+
+    private void loadMoreMessages() {
+
+        DatabaseReference messageDatabaseRefence = rootDatabaseReference.child("messages").child(current_user_id).child(chatUser);
+
+        Query messageQuery = messageDatabaseRefence.orderByKey().endAt(lastMessageKey).limitToLast(10);
+
+        messageQuery.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                Messages message = dataSnapshot.getValue(Messages.class);
+                String messageKey = dataSnapshot.getKey();
+
+                if(!previousMessageKey.equals(messageKey)){
+
+                    messagesList.add(itemPos++, message);
+
+                }else{
+
+                    previousMessageKey=messageKey;
+
+                }
+
+                if (itemPos == 1) {
+
+                    lastMessageKey = messageKey;
+
+                }
+
+
+
+                messageAdapter.notifyDataSetChanged();
+
+                refreshLayout.setRefreshing(false);
+
+                linearLayoutManager.scrollToPositionWithOffset(itemPos,0);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
     private void loadMessages() {
 
-        rootDatabaseReference.child("messages").child(current_user_id).child(chatUser).addChildEventListener(new ChildEventListener() {
+        DatabaseReference messageDatabaseReference = rootDatabaseReference.child("messages").child(current_user_id).child(chatUser);
+
+        Query messageQuery = messageDatabaseReference.limitToLast(currentPage * TOTAL_ITEMS_TO_LOAD);
+
+        messageQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                Messages message=dataSnapshot.getValue(Messages.class);
+                Messages message = dataSnapshot.getValue(Messages.class);
+
+                itemPos++;
+
+                if (itemPos == 1) {
+
+                    String messageKey = dataSnapshot.getKey();
+
+                    lastMessageKey = messageKey;
+                    previousMessageKey=messageKey;
+
+                }
 
                 messagesList.add(message);
                 messageAdapter.notifyDataSetChanged();
+
+                mMessagesList.scrollToPosition(messagesList.size() - 1);
+
+                refreshLayout.setRefreshing(false);
 
             }
 
@@ -224,26 +327,26 @@ public class ChatActivity extends AppCompatActivity {
 
     private void sendMessage() {
 
-        String message=chatMessage.getText().toString();
+        String message = chatMessage.getText().toString();
 
-        if(!TextUtils.isEmpty(message)){
+        if (!TextUtils.isEmpty(message)) {
 
-            String current_userRef="messages/"+current_user_id+"/"+chatUser;
-            String chatUserRef="messages/"+chatUser+"/"+current_user_id;
+            String current_userRef = "messages/" + current_user_id + "/" + chatUser;
+            String chatUserRef = "messages/" + chatUser + "/" + current_user_id;
 
-            DatabaseReference user_message_push=rootDatabaseReference.child("Messages").child(current_user_id).child(chatUser).push();
-            String push_id=user_message_push.getKey();
+            DatabaseReference user_message_push = rootDatabaseReference.child("Messages").child(current_user_id).child(chatUser).push();
+            String push_id = user_message_push.getKey();
 
-            Map messageMap=new HashMap();
-            messageMap.put("message",message);
-            messageMap.put("seen",false);
-            messageMap.put("type","text");
-            messageMap.put("time",ServerValue.TIMESTAMP);
-            messageMap.put("from",current_user_id);
+            Map messageMap = new HashMap();
+            messageMap.put("message", message);
+            messageMap.put("seen", false);
+            messageMap.put("type", "text");
+            messageMap.put("time", ServerValue.TIMESTAMP);
+            messageMap.put("from", current_user_id);
 
-            Map messageUserMap=new HashMap();
-            messageUserMap.put(current_userRef+"/"+push_id,messageMap);
-            messageUserMap.put(chatUserRef+"/"+push_id,messageMap);
+            Map messageUserMap = new HashMap();
+            messageUserMap.put(current_userRef + "/" + push_id, messageMap);
+            messageUserMap.put(chatUserRef + "/" + push_id, messageMap);
 
             chatMessage.setText("");
 
@@ -251,16 +354,15 @@ public class ChatActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
 
-                    if(databaseError!=null){
+                    if (databaseError != null) {
 
-                        Log.d("CHAT LOG2",databaseError.getMessage().toString());
+                        Log.d("CHAT LOG2", databaseError.getMessage().toString());
 
                     }
 
 
                 }
             });
-
 
 
         }
