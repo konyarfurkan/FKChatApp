@@ -58,6 +58,8 @@ public class ChatActivity extends AppCompatActivity {
     private final List<Messages> messagesList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
 
+    private TextView messageTime;
+
     private MessageAdapter messageAdapter;
 
     private static final int TOTAL_ITEMS_TO_LOAD = 10;
@@ -100,6 +102,8 @@ public class ChatActivity extends AppCompatActivity {
         chat_AddButton = findViewById(R.id.chat_addMessage_button);
         chat_SendButton = findViewById(R.id.chat_sendMessage_button);
         chatMessage = findViewById(R.id.chat_Message);
+
+        messageTime=findViewById(R.id.message_single_Time);
 
         messageAdapter = new MessageAdapter(messagesList);
         mMessagesList = findViewById(R.id.chat_messagesList);
@@ -210,9 +214,9 @@ public class ChatActivity extends AppCompatActivity {
 
     private void loadMoreMessages() {
 
-        DatabaseReference messageDatabaseRefence = rootDatabaseReference.child("messages").child(current_user_id).child(chatUser);
+        DatabaseReference messageDatabaseReference = rootDatabaseReference.child("messages").child(current_user_id).child(chatUser);
 
-        Query messageQuery = messageDatabaseRefence.orderByKey().endAt(lastMessageKey).limitToLast(10);
+        Query messageQuery = messageDatabaseReference.orderByKey().endAt(lastMessageKey).limitToLast(10);
 
         messageQuery.addChildEventListener(new ChildEventListener() {
             @Override
@@ -328,6 +332,7 @@ public class ChatActivity extends AppCompatActivity {
     private void sendMessage() {
 
         String message = chatMessage.getText().toString();
+
 
         if (!TextUtils.isEmpty(message)) {
 

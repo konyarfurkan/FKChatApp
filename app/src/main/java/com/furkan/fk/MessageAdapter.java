@@ -1,24 +1,20 @@
 package com.furkan.fk;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
-import java.util.Calendar;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -32,7 +28,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private List<Messages> messagesList;
 
     private FirebaseAuth firebaseAuth;
-    protected Context getApplicationContext;
 
     public MessageAdapter(List<Messages> messagesList) {
 
@@ -54,11 +49,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public class MessageViewHolder extends RecyclerView.ViewHolder {
 
         public TextView messageText;
+        public TextView messageUserDisplayName;
+        public CircleImageView messageUserImage;
+        public TextView messageTime;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
 
-            messageText = itemView.findViewById(R.id.message_text_layout);
+            messageText=itemView.findViewById(R.id.message_single_Text);
+            messageUserDisplayName=itemView.findViewById(R.id.message_single_DisplayName);
+            messageUserImage=itemView.findViewById(R.id.message_single_Image);
+            messageTime=itemView.findViewById(R.id.message_single_Time);
 
         }
     }
@@ -71,19 +72,67 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         Messages c = messagesList.get(position);
         String from_user = c.getFrom();
 
+
+        GetTimeAgo getTimeAgo = new GetTimeAgo();
+        long TIME=c.getTime();
+        String lastSeenTime = getTimeAgo.getTimeAgo2(TIME);
+
         if (from_user.equals(current_user_id)) {
 
-            holder.messageText.setBackgroundColor(Color.WHITE);
+            holder.messageText.setText(c.getMessage());
             holder.messageText.setTextColor(Color.BLACK);
+            holder.messageTime.setText(lastSeenTime);
+
+            FirebaseDatabase.getInstance().getReference().child("Users")
+                    .child(current_user_id).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                            String displayName=dataSnapshot.child("display_name").getValue().toString();
+                            holder.messageUserDisplayName.setText(displayName);
+
+                            String thumbImage=dataSnapshot.child("thumb_image").getValue().toString();
+
+                            Picasso.get().load(thumbImage).placeholder(R.mipmap.default_avatar).into(holder.messageUserImage);
+
+
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
 
         } else {
 
-            holder.messageText.setBackgroundResource(R.drawable.messages_text_background);
-            holder.messageText.setTextColor(Color.WHITE);
+            holder.messageText.setText(c.getMessage());
+            holder.messageText.setTextColor(Color.argb(255,3,147,166));
+            holder.messageTime.setText(lastSeenTime);
+
+            FirebaseDatabase.getInstance().getReference().child("Users").child(from_user).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    String displayName=dataSnapshot.child("display_name").getValue().toString();
+                    holder.messageUserDisplayName.setText(displayName);
+
+                    String thumbImage=dataSnapshot.child("thumb_image").getValue().toString();
+
+                    Picasso.get().load(thumbImage).placeholder(R.mipmap.default_avatar).into(holder.messageUserImage);
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
 
         }
 
-        holder.messageText.setText(c.getMessage());
 
     }
 

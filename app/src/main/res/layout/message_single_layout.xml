@@ -1,22 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/message_single_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    >
+    android:padding="10dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/message_single_Image"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@mipmap/default_avatar" />
 
     <TextView
-        android:id="@+id/message_text_layout"
+        android:id="@+id/message_single_DisplayName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="13dp"
-        android:layout_marginTop="18dp"
-        android:background="@drawable/messages_text_background"
-        android:padding="15dp"
-        android:text="TextView"
-        android:textColor="#444444"
-        android:textSize="13sp" />
+        android:layout_marginStart="31dp"
+        android:layout_toEndOf="@+id/message_single_Image"
+        android:text="Display Name"
+        android:textColor="@android:color/black"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/message_single_Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/message_single_Image"
+        android:layout_alignStart="@+id/message_single_DisplayName"
+        android:text="Message" />
+
+    <TextView
+        android:id="@+id/message_single_Time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:text="TextView" />
+
 
 </RelativeLayout>
