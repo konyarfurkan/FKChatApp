@@ -88,7 +88,7 @@ public class StartActivity extends AppCompatActivity {
         callbackManager = CallbackManager.Factory.create();
         facebookSignInButton = findViewById(R.id.facebookSignIn_button);
         gprogressDialog = new ProgressDialog(this);
-        fprogressDialog=new ProgressDialog(this);
+        fprogressDialog = new ProgressDialog(this);
 
 
         register_button.setOnClickListener(new View.OnClickListener() {
@@ -138,14 +138,14 @@ public class StartActivity extends AppCompatActivity {
                 GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
-                        Log.d("response",response.toString());
+                        Log.d("response", response.toString());
                         getData(object);
 
                     }
                 });
 
                 Bundle parameters = new Bundle();
-                parameters.putString("fields","id,name,gender,link,email,birthday,friends");
+                parameters.putString("fields", "id,name,gender,link,email,birthday,friends");
                 request.setParameters(parameters);
                 request.executeAsync();
 
@@ -173,15 +173,13 @@ public class StartActivity extends AppCompatActivity {
     private void getData(JSONObject object) {
 
         try {
-            URL profile_picture = new URL("https://graph.facebook.com/"+object.getString("id") + "/picture?width=350&height=350");
-            image=profile_picture.toString();
-        }
-        catch (MalformedURLException e) {
+            URL profile_picture = new URL("https://graph.facebook.com/" + object.getString("id") + "/picture?width=350&height=350");
+            image = profile_picture.toString();
+        } catch (MalformedURLException e) {
 
             e.printStackTrace();
 
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
 
             e.printStackTrace();
 
@@ -219,7 +217,6 @@ public class StartActivity extends AppCompatActivity {
                                     if (!dataSnapshot.hasChild(current_user_id)) {
 
 
-
                                         HashMap<String, String> userMap = new HashMap<>();
 
                                         userMap.put("display_name", current_user.getDisplayName());
@@ -243,14 +240,14 @@ public class StartActivity extends AppCompatActivity {
 
                                     } else {
 
-                                        String deviceToken= FirebaseInstanceId.getInstance().getToken();
+                                        String deviceToken = FirebaseInstanceId.getInstance().getToken();
 
                                         databaseReference.child("device_token").setValue(deviceToken).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
 
-                                                Intent mainIntent=new Intent(StartActivity.this,MainActivity.class);
-                                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                Intent mainIntent = new Intent(StartActivity.this, MainActivity.class);
+                                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                                 startActivity(mainIntent);
                                                 finish();
 
@@ -355,14 +352,14 @@ public class StartActivity extends AppCompatActivity {
 
                                     } else {
 
-                                        String deviceToken= FirebaseInstanceId.getInstance().getToken();
+                                        String deviceToken = FirebaseInstanceId.getInstance().getToken();
 
                                         databaseReference.child("device_token").setValue(deviceToken).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
 
-                                                Intent mainIntent=new Intent(StartActivity.this,MainActivity.class);
-                                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                Intent mainIntent = new Intent(StartActivity.this, MainActivity.class);
+                                                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                                 startActivity(mainIntent);
                                                 finish();
 

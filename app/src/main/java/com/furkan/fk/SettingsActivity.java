@@ -20,6 +20,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -288,7 +289,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(false);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(ServerValue.TIMESTAMP);
 
     }
 
@@ -296,7 +297,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(true);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue("true");
 
 
     }

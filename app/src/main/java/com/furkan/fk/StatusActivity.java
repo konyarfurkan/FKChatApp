@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 
 public class StatusActivity extends AppCompatActivity {
 
@@ -83,7 +84,7 @@ public class StatusActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(false);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(ServerValue.TIMESTAMP);
 
 
     }
@@ -92,7 +93,7 @@ public class StatusActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue(true);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(current_user.getUid()).child("online").setValue("true");
 
 
     }

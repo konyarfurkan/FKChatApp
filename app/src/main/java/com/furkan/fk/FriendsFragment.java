@@ -1,8 +1,11 @@
 package com.furkan.fk;
 
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -79,24 +82,61 @@ public class FriendsFragment extends Fragment {
 
                 viewHolder.setDate(friends.getDate());
 
-                String list_user_id=getRef(position).getKey();
+                final String list_user_id=getRef(position).getKey();
 
                 usersDatabaseReference.child(list_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        String user_displayName=dataSnapshot.child("display_name").getValue().toString();
-                        String user_thumbImage=dataSnapshot.child("thumb_image").getValue().toString();
+                        final String user_displayName=dataSnapshot.child("display_name").getValue().toString();
+                        final String user_thumbImage=dataSnapshot.child("thumb_image").getValue().toString();
 
                         if(dataSnapshot.hasChild("online")){
 
-                            Boolean userOnline=(boolean)dataSnapshot.child("online").getValue();
+                            String userOnline=dataSnapshot.child("online").getValue().toString();
                             viewHolder.setUserOnline(userOnline);
 
                         }
 
                         viewHolder.setName(user_displayName);
                         viewHolder.setImage(user_thumbImage);
+
+                        viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+                                CharSequence options[] =new CharSequence[]{"Open Profile","Send message"};
+
+                                AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
+                                builder.setTitle("Select Options");
+                                builder.setItems(options, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        if(which==0){
+
+                                            Intent profileIntent=new Intent(getContext(),ProfileActivity.class);
+                                            profileIntent.putExtra("user_id",list_user_id);
+                                            startActivity(profileIntent);
+
+                                        }
+                                        if(which==1){
+
+                                            Intent chatIntent=new Intent(getContext(),ChatActivity.class);
+                                            chatIntent.putExtra("user_id",list_user_id);
+                                            chatIntent.putExtra("user_displayName",user_displayName);
+                                            startActivity(chatIntent);
+
+                                        }
+
+                                    }
+                                });
+
+                                builder.show();
+
+
+                            }
+                        });
 
 
                     }
@@ -147,10 +187,10 @@ public class FriendsFragment extends Fragment {
 
         }
 
-        public void setUserOnline(boolean online_status){
+        public void setUserOnline(String online_status){
 
             ImageView userOnlineView=mView.findViewById(R.id.user_single_online);
-            if(online_status==true){
+            if(online_status.equals("true")){
 
                 userOnlineView.setVisibility(View.VISIBLE);
 

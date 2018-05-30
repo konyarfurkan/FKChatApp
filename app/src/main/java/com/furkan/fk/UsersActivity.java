@@ -13,6 +13,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -127,7 +128,7 @@ public class UsersActivity extends AppCompatActivity {
         super.onPause();
 
         FirebaseDatabase.getInstance().getReference().child("Users")
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("online").setValue(false);
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("online").setValue(ServerValue.TIMESTAMP);
 
     }
 
@@ -136,7 +137,7 @@ public class UsersActivity extends AppCompatActivity {
         super.onResume();
 
         FirebaseDatabase.getInstance().getReference().child("Users")
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("online").setValue(true);
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("online").setValue("true");
 
 
     }
