@@ -7,13 +7,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -26,6 +30,8 @@ public class UsersActivity extends AppCompatActivity {
     private RecyclerView recyclerView_usersList;
 
     private DatabaseReference databaseReference;
+    private FirebaseAuth firebaseAuth;
+    private String current_user_id;
 
 
     @Override
@@ -46,6 +52,9 @@ public class UsersActivity extends AppCompatActivity {
 
         databaseReference= FirebaseDatabase.getInstance().getReference().child("Users");
 
+        firebaseAuth=FirebaseAuth.getInstance();
+        current_user_id=firebaseAuth.getCurrentUser().getUid();
+
     }
 
     @Override
@@ -61,13 +70,36 @@ public class UsersActivity extends AppCompatActivity {
 
         ) {
             @Override
-            protected void populateViewHolder(UsersViewHolder viewHolder, Users model, int position) {
+            protected void populateViewHolder(final UsersViewHolder viewHolder, final Users model, int position) {
 
-                viewHolder.setName(model.getDisplay_name());
-                viewHolder.setStatus(model.getStatus());
-                viewHolder.setImage(model.getThumb_image());
+
 
                 final String user_id=getRef(position).getKey();
+
+                FirebaseDatabase.getInstance().getReference().child("Users").child(user_id).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        if (!user_id.equals(current_user_id)) {
+
+                        if(dataSnapshot.hasChild("online")){
+
+                            viewHolder.setName(model.getDisplay_name());
+                            viewHolder.setStatus(model.getStatus());
+                            viewHolder.setImage(model.getThumb_image());
+                            String userOnline=dataSnapshot.child("online").getValue().toString();
+                            viewHolder.setUserOnline(userOnline);
+
+                        }
+
+                    }}
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
 
                 viewHolder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -101,6 +133,7 @@ public class UsersActivity extends AppCompatActivity {
         public void setName(String name){
 
             TextView userNameView=mView.findViewById(R.id.user_single_displayName);
+            userNameView.setVisibility(View.VISIBLE);
             userNameView.setText(name);
 
         }
@@ -108,6 +141,7 @@ public class UsersActivity extends AppCompatActivity {
         public void setStatus(String status){
 
             TextView userStatusView=mView.findViewById(R.id.user_single_status);
+            userStatusView.setVisibility(View.VISIBLE);
             userStatusView.setText(status);
 
         }
@@ -115,8 +149,26 @@ public class UsersActivity extends AppCompatActivity {
         public void setImage(final String thumb_image){
 
             CircleImageView userImageView=mView.findViewById(R.id.user_single_image);
+            userImageView.setVisibility(View.VISIBLE);
 
             Picasso.get().load(thumb_image).placeholder(R.mipmap.default_avatar).into(userImageView);
+
+
+        }
+
+        public void setUserOnline(String online_status){
+
+            ImageView userOnlineView=mView.findViewById(R.id.user_single_online);
+            if(online_status.equals("true")){
+
+                userOnlineView.setVisibility(View.VISIBLE);
+
+            }
+            else{
+
+                userOnlineView.setVisibility(View.INVISIBLE);
+
+            }
 
 
         }

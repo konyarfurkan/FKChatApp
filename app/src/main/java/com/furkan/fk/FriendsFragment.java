@@ -88,12 +88,14 @@ public class FriendsFragment extends Fragment {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        final String user_displayName=dataSnapshot.child("display_name").getValue().toString();
-                        final String user_thumbImage=dataSnapshot.child("thumb_image").getValue().toString();
 
-                        if(dataSnapshot.hasChild("online")){
+                        if (!list_user_id.equals(current_user_id)) {
+                        final String user_displayName = dataSnapshot.child("display_name").getValue().toString();
+                        final String user_thumbImage = dataSnapshot.child("thumb_image").getValue().toString();
 
-                            String userOnline=dataSnapshot.child("online").getValue().toString();
+                        if (dataSnapshot.hasChild("online")) {
+
+                            String userOnline = dataSnapshot.child("online").getValue().toString();
                             viewHolder.setUserOnline(userOnline);
 
                         }
@@ -105,26 +107,26 @@ public class FriendsFragment extends Fragment {
                             @Override
                             public void onClick(View v) {
 
-                                CharSequence options[] =new CharSequence[]{"Open Profile","Send message"};
+                                CharSequence options[] = new CharSequence[]{"Open Profile", "Send message"};
 
-                                AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                                 builder.setTitle("Select Options");
                                 builder.setItems(options, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
 
-                                        if(which==0){
+                                        if (which == 0) {
 
-                                            Intent profileIntent=new Intent(getContext(),ProfileActivity.class);
-                                            profileIntent.putExtra("user_id",list_user_id);
+                                            Intent profileIntent = new Intent(getContext(), ProfileActivity.class);
+                                            profileIntent.putExtra("user_id", list_user_id);
                                             startActivity(profileIntent);
 
                                         }
-                                        if(which==1){
+                                        if (which == 1) {
 
-                                            Intent chatIntent=new Intent(getContext(),ChatActivity.class);
-                                            chatIntent.putExtra("user_id",list_user_id);
-                                            chatIntent.putExtra("user_displayName",user_displayName);
+                                            Intent chatIntent = new Intent(getContext(), ChatActivity.class);
+                                            chatIntent.putExtra("user_id", list_user_id);
+                                            chatIntent.putExtra("user_displayName", user_displayName);
                                             startActivity(chatIntent);
 
                                         }
@@ -138,7 +140,7 @@ public class FriendsFragment extends Fragment {
                             }
                         });
 
-
+                    }
                     }
 
                     @Override
@@ -168,6 +170,7 @@ public class FriendsFragment extends Fragment {
         public void setDate(String date){
 
             TextView userStatusView=mView.findViewById(R.id.user_single_status);
+            userStatusView.setVisibility(View.VISIBLE);
             userStatusView.setText(date);
 
         }
@@ -175,6 +178,7 @@ public class FriendsFragment extends Fragment {
         public void setName(String name){
 
             TextView userNameView=mView.findViewById(R.id.user_single_displayName);
+            userNameView.setVisibility(View.VISIBLE);
             userNameView.setText(name);
 
         }
@@ -182,6 +186,7 @@ public class FriendsFragment extends Fragment {
         public void setImage(String thumb_image){
 
             CircleImageView userImageView=mView.findViewById(R.id.user_single_image);
+            userImageView.setVisibility(View.VISIBLE);
 
             Picasso.get().load(thumb_image).placeholder(R.mipmap.default_avatar).into(userImageView);
 
