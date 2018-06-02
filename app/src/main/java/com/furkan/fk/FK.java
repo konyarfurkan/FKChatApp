@@ -12,9 +12,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
-/**
- * Created by furkan on 26.05.2018.
- */
 
 public class FK extends Application {
 
