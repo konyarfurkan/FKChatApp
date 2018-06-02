@@ -41,7 +41,7 @@
         android:weightSum="10">
 
         <ImageButton
-            android:id="@+id/chat_addMessage_button"
+            android:id="@+id/chat_addImage_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

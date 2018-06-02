@@ -84,18 +84,17 @@ public class RequestsFragment extends Fragment {
         ) {
 
 
-
             @Override
             protected void populateViewHolder(final FriendRequestsViewHolder viewHolder, FriendRequests model, final int position) {
 
 
                 final String user_id = getRef(position).getKey();
 
-                friendRequestsDatabaseReference.addValueEventListener(new ValueEventListener() {
+                friendRequestsDatabaseReference.child(user_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        if(dataSnapshot.hasChild(user_id)){
+                        if (dataSnapshot.hasChild(current_user_id)) {
 
 
                             usersDatabaseReference.child(user_id).addValueEventListener(new ValueEventListener() {
@@ -146,6 +145,7 @@ public class RequestsFragment extends Fragment {
 
                                     }
                                 }
+
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
 

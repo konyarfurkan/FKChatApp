@@ -1,6 +1,11 @@
 package com.furkan.fk;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +20,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -25,14 +33,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -49,7 +65,7 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private String current_user_id;
 
-    private ImageButton chat_AddButton, chat_SendButton;
+    private ImageButton chat_AddImageButton, chat_SendButton;
     private EditText chatMessage;
 
     private RecyclerView mMessagesList;
@@ -58,8 +74,6 @@ public class ChatActivity extends AppCompatActivity {
     private final List<Messages> messagesList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
 
-    private TextView messageTime;
-
     private MessageAdapter messageAdapter;
 
     private static final int TOTAL_ITEMS_TO_LOAD = 10;
@@ -67,7 +81,9 @@ public class ChatActivity extends AppCompatActivity {
 
     private int itemPos = 0;
     private String lastMessageKey = "";
-    private String previousMessageKey="";
+    private String previousMessageKey = "";
+    private static final int GALLERY_PICK = 1;
+    private StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,11 +115,9 @@ public class ChatActivity extends AppCompatActivity {
         chat_lastSeen = findViewById(R.id.custom_bar_lastSeen);
         chat_profileImage = findViewById(R.id.custom_bar_image);
 
-        chat_AddButton = findViewById(R.id.chat_addMessage_button);
+        chat_AddImageButton = findViewById(R.id.chat_addImage_button);
         chat_SendButton = findViewById(R.id.chat_sendMessage_button);
         chatMessage = findViewById(R.id.chat_Message);
-
-        messageTime=findViewById(R.id.message_single_Time);
 
         messageAdapter = new MessageAdapter(messagesList);
         mMessagesList = findViewById(R.id.chat_messagesList);
@@ -113,6 +127,8 @@ public class ChatActivity extends AppCompatActivity {
         mMessagesList.setHasFixedSize(true);
         mMessagesList.setLayoutManager(linearLayoutManager);
         mMessagesList.setAdapter(messageAdapter);
+
+        storageReference= FirebaseStorage.getInstance().getReference();
 
         loadMessages();
 
@@ -196,6 +212,19 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        chat_AddImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent galleryIntent = new Intent();
+                galleryIntent.setType("image/*");
+                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+
+                startActivityForResult(Intent.createChooser(galleryIntent, "SELECT IMAGE"), GALLERY_PICK);
+
+            }
+        });
+
 
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -225,13 +254,13 @@ public class ChatActivity extends AppCompatActivity {
                 Messages message = dataSnapshot.getValue(Messages.class);
                 String messageKey = dataSnapshot.getKey();
 
-                if(!previousMessageKey.equals(messageKey)){
+                if (!previousMessageKey.equals(messageKey)) {
 
                     messagesList.add(itemPos++, message);
 
-                }else{
+                } else {
 
-                    previousMessageKey=messageKey;
+                    previousMessageKey = messageKey;
 
                 }
 
@@ -242,12 +271,11 @@ public class ChatActivity extends AppCompatActivity {
                 }
 
 
-
                 messageAdapter.notifyDataSetChanged();
 
                 refreshLayout.setRefreshing(false);
 
-                linearLayoutManager.scrollToPositionWithOffset(itemPos,0);
+                linearLayoutManager.scrollToPositionWithOffset(itemPos, 0);
 
             }
 
@@ -293,7 +321,7 @@ public class ChatActivity extends AppCompatActivity {
                     String messageKey = dataSnapshot.getKey();
 
                     lastMessageKey = messageKey;
-                    previousMessageKey=messageKey;
+                    previousMessageKey = messageKey;
 
                 }
 
@@ -373,6 +401,72 @@ public class ChatActivity extends AppCompatActivity {
         }
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == GALLERY_PICK && resultCode == RESULT_OK) {
+
+            Uri imageUri = data.getData();
+
+            CropImage.activity(imageUri)
+                    .setAspectRatio(1, 1)
+                    .setMinCropWindowSize(200, 200)
+                    .start(this);
+
+            final String current_userRef = "messages/" + current_user_id + "/" + chatUser;
+            final String chatUserRef = "messages/" + chatUser + "/" + current_user_id;
+
+            DatabaseReference user_message_push = rootDatabaseReference.child("Messages").child(current_user_id).child(chatUser).push();
+            final String push_id = user_message_push.getKey();
+
+            StorageReference filepath = storageReference.child("message_images").child(push_id + ".jpg");
+            filepath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                    if (task.isSuccessful()) {
+
+                        String download_url = task.getResult().getDownloadUrl().toString();
+
+                        Map messageMap = new HashMap();
+                        messageMap.put("message", download_url);
+                        messageMap.put("seen", false);
+                        messageMap.put("type", "image");
+                        messageMap.put("time", ServerValue.TIMESTAMP);
+                        messageMap.put("from", current_user_id);
+
+                        Map messageUserMap = new HashMap();
+                        messageUserMap.put(current_userRef + "/" + push_id, messageMap);
+                        messageUserMap.put(chatUserRef + "/" + push_id, messageMap);
+
+                        chatMessage.setText("");
+
+                        rootDatabaseReference.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+
+                                if (databaseError != null) {
+
+                                    Log.d("CHAT_LOG", databaseError.getMessage().toString());
+
+                                }
+
+                            }
+                        });
+
+
+                    }
+
+                }
+            });
+
+        }
+
+
+    }
+
 
     @Override
     protected void onPause() {

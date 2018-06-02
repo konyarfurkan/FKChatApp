@@ -219,10 +219,13 @@ public class StartActivity extends AppCompatActivity {
 
                                         HashMap<String, String> userMap = new HashMap<>();
 
+                                        String deviceToken = FirebaseInstanceId.getInstance().getToken();
+
                                         userMap.put("display_name", current_user.getDisplayName());
                                         userMap.put("status", "Hi there I'm using FK");
                                         userMap.put("image", image);
                                         userMap.put("thumb_image", "default");
+                                        userMap.put("device_token",deviceToken);
 
                                         databaseReference.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
@@ -330,11 +333,14 @@ public class StartActivity extends AppCompatActivity {
 
                                     if (!dataSnapshot.hasChild(current_user_id)) {
 
+                                        String deviceToken = FirebaseInstanceId.getInstance().getToken();
+
                                         HashMap<String, String> userMap = new HashMap<>();
                                         userMap.put("display_name", current_user.getDisplayName());
                                         userMap.put("status", "Hi there I'm using FK");
                                         userMap.put("image", "default");
                                         userMap.put("thumb_image", "default");
+                                        userMap.put("device_token",deviceToken);
 
                                         databaseReference.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override

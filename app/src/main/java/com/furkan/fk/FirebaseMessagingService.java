@@ -19,12 +19,12 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
-        String notification_title=remoteMessage.getNotification().getTitle();
-        String notification_message=remoteMessage.getNotification().getBody();
-        String click_action=remoteMessage.getNotification().getClickAction();
-        String from_user_id=remoteMessage.getData().get("from_user_id");
+        String notification_title = remoteMessage.getNotification().getTitle();
+        String notification_message = remoteMessage.getNotification().getBody();
+        String click_action = remoteMessage.getNotification().getClickAction();
+        String from_user_id = remoteMessage.getData().get("from_user_id");
 
-        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
@@ -36,10 +36,10 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
 
-        Intent resultIntent=new Intent(click_action);
-        resultIntent.putExtra("user_id",from_user_id);
+        Intent resultIntent = new Intent(click_action);
+        resultIntent.putExtra("user_id", from_user_id);
 
-        PendingIntent resultPendingIntent=
+        PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
                         this,
                         0,
@@ -50,10 +50,10 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
         mBuilder.setContentIntent(resultPendingIntent);
 
-        int notificationId=(int)System.currentTimeMillis();
+        int notificationId = (int) System.currentTimeMillis();
 
-        NotificationManager notificationManager=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(notificationId,mBuilder.build());
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(notificationId, mBuilder.build());
 
     }
 }

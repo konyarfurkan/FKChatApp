@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -52,6 +53,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public TextView messageUserDisplayName;
         public CircleImageView messageUserImage;
         public TextView messageTime;
+        public ImageView messageImage;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
@@ -60,6 +62,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             messageUserDisplayName=itemView.findViewById(R.id.message_single_DisplayName);
             messageUserImage=itemView.findViewById(R.id.message_single_Image);
             messageTime=itemView.findViewById(R.id.message_single_Time);
+            messageImage=itemView.findViewById(R.id.message_ImageMessage);
 
         }
     }
@@ -71,6 +74,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         Messages c = messagesList.get(position);
         String from_user = c.getFrom();
+        String message_type=c.getType();
 
 
         GetTimeAgo getTimeAgo = new GetTimeAgo();
@@ -79,9 +83,26 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         if (from_user.equals(current_user_id)) {
 
-            holder.messageText.setText(c.getMessage());
+
+
+            if(!message_type.equals("text")){
+
+                holder.messageText.setVisibility(View.INVISIBLE);
+                holder.messageImage.setVisibility(View.VISIBLE);
+                Picasso.get().load(c.getMessage()).placeholder(R.mipmap.default_avatar).into(holder.messageImage);
+
+            }else{
+
+                holder.messageImage.setVisibility(View.GONE);
+                holder.messageText.setVisibility(View.VISIBLE);
+                holder.messageText.setText(c.getMessage());
+
+            }
+
             holder.messageText.setTextColor(Color.BLACK);
             holder.messageTime.setText(lastSeenTime);
+
+
 
             FirebaseDatabase.getInstance().getReference().child("Users")
                     .child(current_user_id).addValueEventListener(new ValueEventListener() {
@@ -108,7 +129,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         } else {
 
-            holder.messageText.setText(c.getMessage());
+
+            if(!message_type.equals("text")){
+
+
+                holder.messageText.setVisibility(View.INVISIBLE);
+                holder.messageImage.setVisibility(View.VISIBLE);
+                Picasso.get().load(c.getMessage()).placeholder(R.mipmap.default_avatar).into(holder.messageImage);
+
+            }else{
+
+                holder.messageText.setText(c.getMessage());
+                holder.messageImage.setVisibility(View.GONE);
+                holder.messageText.setVisibility(View.VISIBLE);
+
+            }
             holder.messageText.setTextColor(Color.argb(255,3,147,166));
             holder.messageTime.setText(lastSeenTime);
 
@@ -132,6 +167,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             });
 
         }
+
 
 
     }

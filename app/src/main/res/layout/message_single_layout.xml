@@ -10,6 +10,7 @@
         android:id="@+id/message_single_Image"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:scaleType="centerCrop"
         android:src="@mipmap/default_avatar" />
 
     <TextView
@@ -38,7 +39,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:text="TextView" />
+        android:text="00:00" />
 
+    <ImageView
+        android:id="@+id/message_ImageMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/message_single_Text"
+        android:layout_below="@id/message_single_Text"
+        android:layout_toEndOf="@id/message_single_Image"
+        android:scaleType="centerCrop"
+        app:srcCompat="@color/colorAccent" />
 
 </RelativeLayout>
