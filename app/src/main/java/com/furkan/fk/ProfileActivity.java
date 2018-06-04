@@ -1,18 +1,15 @@
 package com.furkan.fk;
 
 import android.app.ProgressDialog;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -58,6 +55,23 @@ public class ProfileActivity extends AppCompatActivity {
         notificationDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Notifications");
         current_user = FirebaseAuth.getInstance().getCurrentUser();
 
+        friendDatabaseReference.child(user_id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                long x=dataSnapshot.getChildrenCount();
+                String totalFriendCount="Total Friends : "+x;
+
+                profile_totalFriends.setText(totalFriendCount);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         profileImageView = findViewById(R.id.profile_imageView);
         profile_name = findViewById(R.id.profile_displayName);
         profile_status = findViewById(R.id.profile_status);
@@ -75,6 +89,7 @@ public class ProfileActivity extends AppCompatActivity {
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
 
+
         userDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -82,6 +97,7 @@ public class ProfileActivity extends AppCompatActivity {
                 String display_name = dataSnapshot.child("display_name").getValue().toString();
                 String status = dataSnapshot.child("status").getValue().toString();
                 String image = dataSnapshot.child("image").getValue().toString();
+
 
                 profile_name.setText(display_name);
                 profile_status.setText(status);

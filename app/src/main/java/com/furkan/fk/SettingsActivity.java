@@ -4,9 +4,9 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -41,20 +41,15 @@ import id.zelory.compressor.Compressor;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    private static final int GALLERY_PICK = 1;
+    byte[] thumb_byte;
     private DatabaseReference usersDatabaseReference;
     private FirebaseUser current_user;
-
     private CircleImageView settingsImage;
     private TextView settings_display_name, settings_status;
     private Button settings_change_image, settings_change_status;
-
-    private static final int GALLERY_PICK = 1;
-
-
     private StorageReference imageStorage;
     private ProgressDialog progressDialog;
-
-    byte[] thumb_byte;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +89,6 @@ public class SettingsActivity extends AppCompatActivity {
                             .placeholder(R.mipmap.default_avatar).into(settingsImage, new Callback() {
                         @Override
                         public void onSuccess() {
-
 
 
                         }
@@ -217,9 +211,9 @@ public class SettingsActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> thumbtask) {
 
-                                    String thumb_downloadUrl=thumbtask.getResult().getDownloadUrl().toString();
+                                    String thumb_downloadUrl = thumbtask.getResult().getDownloadUrl().toString();
 
-                                    if(thumbtask.isSuccessful()){
+                                    if (thumbtask.isSuccessful()) {
 
                                         Map update_HashMap = new HashMap<>();
                                         update_HashMap.put("image", download_url);
@@ -239,8 +233,7 @@ public class SettingsActivity extends AppCompatActivity {
                                             }
                                         });
 
-                                    }
-                                    else{
+                                    } else {
 
                                         Toast.makeText(SettingsActivity.this, "Error in uploading thumbnail", Toast.LENGTH_SHORT).show();
                                         progressDialog.dismiss();
@@ -280,7 +273,6 @@ public class SettingsActivity extends AppCompatActivity {
 
             }
         }
-
 
 
     }

@@ -44,9 +44,9 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
         return 3;
     }
 
-    public CharSequence getPageTitle(int position){
+    public CharSequence getPageTitle(int position) {
 
-        switch (position){
+        switch (position) {
 
             case 0:
                 return "REQUESTS";

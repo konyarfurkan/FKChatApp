@@ -1,15 +1,13 @@
 package com.furkan.fk;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -39,50 +37,36 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import id.zelory.compressor.Compressor;
 
 public class ChatActivity extends AppCompatActivity {
 
+    private static final int TOTAL_ITEMS_TO_LOAD = 10;
+    private static final int GALLERY_PICK = 1;
+    private final List<Messages> messagesList = new ArrayList<>();
     private String chatUser;
     private String chatUser_displayName;
-
     private Toolbar toolbar;
-
     private DatabaseReference rootDatabaseReference;
-
     private TextView chat_displayName, chat_lastSeen;
     private CircleImageView chat_profileImage;
-
     private FirebaseAuth firebaseAuth;
     private String current_user_id;
-
     private ImageButton chat_AddImageButton, chat_SendButton;
     private EditText chatMessage;
-
     private RecyclerView mMessagesList;
     private SwipeRefreshLayout refreshLayout;
-
-    private final List<Messages> messagesList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
-
     private MessageAdapter messageAdapter;
-
-    private static final int TOTAL_ITEMS_TO_LOAD = 10;
     private int currentPage = 1;
-
     private int itemPos = 0;
     private String lastMessageKey = "";
     private String previousMessageKey = "";
-    private static final int GALLERY_PICK = 1;
     private StorageReference storageReference;
 
     @Override
@@ -115,6 +99,17 @@ public class ChatActivity extends AppCompatActivity {
         chat_lastSeen = findViewById(R.id.custom_bar_lastSeen);
         chat_profileImage = findViewById(R.id.custom_bar_image);
 
+        chat_profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent profileIntent = new Intent(ChatActivity.this, ProfileActivity.class);
+                profileIntent.putExtra("user_id", chatUser);
+                startActivity(profileIntent);
+
+            }
+        });
+
         chat_AddImageButton = findViewById(R.id.chat_addImage_button);
         chat_SendButton = findViewById(R.id.chat_sendMessage_button);
         chatMessage = findViewById(R.id.chat_Message);
@@ -128,7 +123,7 @@ public class ChatActivity extends AppCompatActivity {
         mMessagesList.setLayoutManager(linearLayoutManager);
         mMessagesList.setAdapter(messageAdapter);
 
-        storageReference= FirebaseStorage.getInstance().getReference();
+        storageReference = FirebaseStorage.getInstance().getReference();
 
         loadMessages();
 
@@ -206,6 +201,7 @@ public class ChatActivity extends AppCompatActivity {
         chat_SendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
 
                 sendMessage();
 
@@ -359,7 +355,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void sendMessage() {
 
-        String message = chatMessage.getText().toString();
+        final String message = chatMessage.getText().toString();
 
 
         if (!TextUtils.isEmpty(message)) {
@@ -393,6 +389,28 @@ public class ChatActivity extends AppCompatActivity {
 
                     }
 
+
+                }
+            });
+            DatabaseReference newNotificationReference = rootDatabaseReference.child("Notifications2").child(chatUser).push();
+            String newNotificationId = newNotificationReference.getKey();
+
+            HashMap<String, String> notification_data = new HashMap<>();
+            notification_data.put("from", current_user_id);
+            notification_data.put("type", message);
+
+            Map requestMap = new HashMap();
+            requestMap.put("Notifications2/" + chatUser + "/" + newNotificationId, notification_data);
+
+            rootDatabaseReference.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+
+                    if (databaseError != null) {
+
+                        Toast.makeText(ChatActivity.this, "There was some error in sending request", Toast.LENGTH_SHORT).show();
+
+                    }
 
                 }
             });

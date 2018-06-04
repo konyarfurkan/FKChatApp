@@ -31,6 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/message_single_Image"
         android:layout_alignStart="@+id/message_single_DisplayName"
+        android:clickable="false"
         android:text="Message" />
 
     <TextView

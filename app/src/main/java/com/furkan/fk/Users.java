@@ -11,14 +11,6 @@ public class Users {
     private String status;
     private String thumb_image;
 
-    public String getDisplay_name() {
-        return display_name;
-    }
-
-    public void setDisplay_name(String display_name) {
-        this.display_name = display_name;
-    }
-
     public Users(String name, String image, String status, String thumb_image) {
         this.display_name = name;
         this.image = image;
@@ -32,6 +24,17 @@ public class Users {
         this.status = status;
     }
 
+    public Users() {
+    }
+
+    public String getDisplay_name() {
+        return display_name;
+    }
+
+    public void setDisplay_name(String display_name) {
+        this.display_name = display_name;
+    }
+
     public String getThumb_image() {
         return thumb_image;
     }
@@ -39,11 +42,6 @@ public class Users {
     public void setThumb_image(String thumb_image) {
         this.thumb_image = thumb_image;
     }
-
-    public Users() {
-    }
-
-
 
     public String getImage() {
         return image;

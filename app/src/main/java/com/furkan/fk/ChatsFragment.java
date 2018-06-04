@@ -53,22 +53,22 @@ public class ChatsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        MainView=inflater.inflate(R.layout.fragment_chats, container, false);
+        MainView = inflater.inflate(R.layout.fragment_chats, container, false);
 
-        chatsList=MainView.findViewById(R.id.chats_list);
+        chatsList = MainView.findViewById(R.id.chats_list);
 
-        firebaseAuth=FirebaseAuth.getInstance();
-        current_user_id=firebaseAuth.getCurrentUser().getUid();
+        firebaseAuth = FirebaseAuth.getInstance();
+        current_user_id = firebaseAuth.getCurrentUser().getUid();
 
-        chatsDatabaseReference= FirebaseDatabase.getInstance().getReference().child("Chat").child(current_user_id);
+        chatsDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Chat").child(current_user_id);
         chatsDatabaseReference.keepSynced(true);
 
-        usersDatabaseReference=FirebaseDatabase.getInstance().getReference().child("Users");
+        usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Users");
         usersDatabaseReference.keepSynced(true);
 
-        messagesDatabaseReference=FirebaseDatabase.getInstance().getReference().child("messages").child(current_user_id);
+        messagesDatabaseReference = FirebaseDatabase.getInstance().getReference().child("messages").child(current_user_id);
 
-        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getContext());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
 
@@ -82,9 +82,9 @@ public class ChatsFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        Query chatsQuery=chatsDatabaseReference.orderByChild("timestamp");
+        Query chatsQuery = chatsDatabaseReference.orderByChild("timestamp");
 
-        FirebaseRecyclerAdapter<Chats,ChatsViewHolder> firebaseRecyclerAdapter=new FirebaseRecyclerAdapter<Chats, ChatsViewHolder>(
+        FirebaseRecyclerAdapter<Chats, ChatsViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Chats, ChatsViewHolder>(
 
                 Chats.class,
                 R.layout.users_single_layout,
@@ -95,15 +95,15 @@ public class ChatsFragment extends Fragment {
             @Override
             protected void populateViewHolder(final ChatsViewHolder viewHolder, final Chats model, int position) {
 
-                final String list_user_id=getRef(position).getKey();
-                Query lastMessageQuery=messagesDatabaseReference.child(list_user_id).limitToLast(1);
+                final String list_user_id = getRef(position).getKey();
+                Query lastMessageQuery = messagesDatabaseReference.child(list_user_id).limitToLast(1);
 
                 lastMessageQuery.addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                        String data=dataSnapshot.child("message").getValue().toString();
-                        viewHolder.setMessage(data,model.isSeen());
+                        String data = dataSnapshot.child("message").getValue().toString();
+                        viewHolder.setMessage(data, model.isSeen());
 
                     }
 
@@ -132,12 +132,12 @@ public class ChatsFragment extends Fragment {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        final String userName=dataSnapshot.child("display_name").getValue().toString();
-                        String userThumb=dataSnapshot.child("thumb_image").getValue().toString();
+                        final String userName = dataSnapshot.child("display_name").getValue().toString();
+                        String userThumb = dataSnapshot.child("thumb_image").getValue().toString();
 
-                        if(dataSnapshot.hasChild("online")){
+                        if (dataSnapshot.hasChild("online")) {
 
-                            String userOnline=dataSnapshot.child("online").getValue().toString();
+                            String userOnline = dataSnapshot.child("online").getValue().toString();
                             viewHolder.setUserOnline(userOnline);
 
                         }
@@ -149,9 +149,9 @@ public class ChatsFragment extends Fragment {
                             @Override
                             public void onClick(View v) {
 
-                                Intent chatIntent=new Intent(getContext(),ChatActivity.class);
-                                chatIntent.putExtra("user_id",list_user_id);
-                                chatIntent.putExtra("user_name",userName);
+                                Intent chatIntent = new Intent(getContext(), ChatActivity.class);
+                                chatIntent.putExtra("user_id", list_user_id);
+                                chatIntent.putExtra("user_name", userName);
                                 startActivity(chatIntent);
 
                             }
@@ -174,14 +174,14 @@ public class ChatsFragment extends Fragment {
 
     }
 
-    public static class ChatsViewHolder extends RecyclerView.ViewHolder{
+    public static class ChatsViewHolder extends RecyclerView.ViewHolder {
 
         View mView;
 
         public ChatsViewHolder(View itemView) {
             super(itemView);
 
-            mView=itemView;
+            mView = itemView;
 
         }
 
@@ -202,18 +202,17 @@ public class ChatsFragment extends Fragment {
 
         }
 
-        public void setMessage(String message,boolean isSeen){
+        public void setMessage(String message, boolean isSeen) {
 
-            TextView userStatusView=mView.findViewById(R.id.user_single_status);
+            TextView userStatusView = mView.findViewById(R.id.user_single_status);
             userStatusView.setVisibility(View.VISIBLE);
             userStatusView.setText(message);
 
-            if(!isSeen){
+            if (!isSeen) {
 
                 userStatusView.setTypeface(userStatusView.getTypeface(), Typeface.ITALIC);
 
-            }
-            else{
+            } else {
 
                 userStatusView.setTypeface(userStatusView.getTypeface(), Typeface.BOLD);
 
@@ -238,7 +237,6 @@ public class ChatsFragment extends Fragment {
         }
 
     }
-
 
 
 }

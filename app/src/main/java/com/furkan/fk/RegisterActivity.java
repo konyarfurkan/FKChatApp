@@ -2,10 +2,10 @@ package com.furkan.fk;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
@@ -85,18 +85,18 @@ public class RegisterActivity extends AppCompatActivity {
 
                 if (task.isSuccessful()) {
 
-                    FirebaseUser currentUser=FirebaseAuth.getInstance().getCurrentUser();
-                    String uid=currentUser.getUid();
-                    String deviceToken= FirebaseInstanceId.getInstance().getToken();
+                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                    String uid = currentUser.getUid();
+                    String deviceToken = FirebaseInstanceId.getInstance().getToken();
 
-                    firebaseDatabase=FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
+                    firebaseDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
 
-                    HashMap<String,String> userMap=new HashMap<>();
-                    userMap.put("device_token",deviceToken);
-                    userMap.put("display_name",display_name);
-                    userMap.put("status","Hi there I'm using FK");
-                    userMap.put("image","default");
-                    userMap.put("thumb_image","default");
+                    HashMap<String, String> userMap = new HashMap<>();
+                    userMap.put("device_token", deviceToken);
+                    userMap.put("display_name", display_name);
+                    userMap.put("status", "Hi there I'm using FK");
+                    userMap.put("image", "default");
+                    userMap.put("thumb_image", "default");
 
                     firebaseDatabase.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -105,7 +105,7 @@ public class RegisterActivity extends AppCompatActivity {
                             progressDialog.dismiss();
 
                             Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
-                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(mainIntent);
                             finish();
 
